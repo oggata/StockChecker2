@@ -13,12 +13,16 @@ import {
   ListItem,
   ButtonGroup,
   SearchBar,
-  CheckBox
+  CheckBox,
+  PricingCard
 } from "react-native-elements";
 //import {Bar,StockLine,SmoothLine,Scatterplot,Radar,Tree,Pie} from 'react-native-pathjs-charts';
-
+import { ScrollView } from "react-native";
 //import Chart from 'react-native-charts';
 //import Chart2 from 'react-native-pathjs-charts';
+
+//import Table from "react-native-simple-table";
+
 import {
   Bar,
   StockLine,
@@ -49,6 +53,7 @@ class UserScreen extends Component {
     super(props);
     this.state = {
       loading: false,
+      todays: {},
       prices: [],
       points: data,
       averages: data,
@@ -80,6 +85,7 @@ class UserScreen extends Component {
       //改行でsplitしてlineに配列として入れる
       var lines = res.split(/\r\n|\r|\n/);
       //８行目以降は価格部になるので、配列に入れておく
+      this.todays = {};
       this.prices = [];
       this.points = [];
       this.heikins = [];
@@ -93,7 +99,16 @@ class UserScreen extends Component {
       this.roopCnt = 0;
       for (i = 7; i < lines.length; i++) {
         var columns = lines[i].split(",");
+        console.log("a>>>>>>>");
+        console.log(columns);
+        console.log("a>>>>>>>");
         if (columns[0].startsWith("a")) {
+
+
+console.log("b1>>>>>>>");
+console.log(columns);
+console.log("b1>>>>>>>");
+
           var _unixtime = columns[0].slice(1);
           this.firstUnixTime = _unixtime;
           //var _txt = _unixtime + "," + this.unixToDate(_unixtime) + "," + columns[1] + "," + columns[2] + "," + columns[3];
@@ -108,6 +123,8 @@ class UserScreen extends Component {
           _txt.dekidaka = columns[5];
 
           this.prices.push(_txt);
+
+          this.todays = _txt;
 
           /*
           var _pointData = [];
@@ -157,11 +174,10 @@ class UserScreen extends Component {
           }
 
           this.roopCnt++;
-        } else {
+        } else if(columns[0]){
+
           var _unixtime =
             Number(this.firstUnixTime) + 86400 * Number(columns[0]);
-          //var _txt = _unixtime + "," + this.unixToDate(_unixtime) + "," + columns[1] + "," + columns[2] + "," + columns[3];
-          //var _txt = "{name:'AAAAA'}";
           var _txt = new Object();
           _txt.name = "hello";
           _txt.strdate = this.unixToDate(_unixtime);
@@ -172,6 +188,9 @@ class UserScreen extends Component {
           _txt.dekidaka = columns[5];
 
           this.prices.push(_txt);
+
+          this.todays = _txt;
+
 
           //var _pointData = [];
           //_pointData.push(_txt.strdate);
@@ -230,6 +249,7 @@ class UserScreen extends Component {
         }
       }
       this.setState({
+        todays: this.todays,
         prices: this.prices,
         points: this.points,
         averages: this.averages
@@ -248,11 +268,28 @@ class UserScreen extends Component {
   }
 
   render() {
+    const buttons = ["1M", "3M", "6M", "1Y"];
+    //const buttons2 = ["1year", "3month", "1month"];
+console.log(">>>>>>>>>>>>>>>>");
+console.log(this.state.todays);
+    console.log(">>>>>>>>>>>>>>>>");
     return (
-      <View>
-        <Text>
-          {this.state.company.name}
-        </Text>
+      <ScrollView>
+
+        <PricingCard
+          color='#4f9deb'
+          title={this.state.company.name}
+          price={this.state.todays.owarine}
+          info={['1 User']}
+          button={{ title: 'GET STARTED', icon: 'flight-takeoff' }}
+        />
+
+        <ButtonGroup
+          onPress={() => {
+            this.setState({ selectedTab: this.updateIndex });
+          }}
+          buttons={buttons}
+        />
 
         <StockLine
           data={[this.state.points, this.state.averages]}
@@ -261,10 +298,7 @@ class UserScreen extends Component {
           yKey="y"
         />
 
-        <Text>
-          {this.state.company.name}
-        </Text>
-      </View>
+      </ScrollView>
     );
   }
 }
