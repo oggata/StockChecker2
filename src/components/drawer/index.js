@@ -33,6 +33,7 @@ const userNavOptions = getDrawerNavigationOptions('Users', Colors.primary, 'whit
 const Drawer = DrawerNavigator({
   HomeScreen: { screen: HomeScreen, navigationOptions: homeNavOptions },
   UserScreen: { screen: UserScreen, navigationOptions: userNavOptions },
+  Companies: { screen: UserScreen, navigationOptions: userNavOptions },
 }, getDrawerConfig(300, 'left', 'HomeScreen'));
 
 Drawer.navigationOptions = ({ navigation }) => getNavigationOptionsWithAction('ReactNavDrawer', Colors.primary, 'white', getDrawerItem(navigation));
