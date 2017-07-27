@@ -21,7 +21,7 @@ import { ScrollView } from "react-native";
 //import Chart from 'react-native-charts';
 //import Chart2 from 'react-native-pathjs-charts';
 
-//import Table from "react-native-simple-table";
+import Table from "react-native-simple-table";
 
 import {
   Bar,
@@ -57,7 +57,8 @@ class UserScreen extends Component {
       prices: [],
       points: data,
       averages: data,
-      company: this.props.navigation.state.params
+      company: this.props.navigation.state.params,
+      dataSource: array
     };
   }
 
@@ -269,6 +270,7 @@ console.log("b1>>>>>>>");
 
   render() {
     const buttons = ["1M", "3M", "6M", "1Y"];
+    const aveButtons = ["ave:none", "5D", "12D", "70D"];
     //const buttons2 = ["1year", "3month", "1month"];
 console.log(">>>>>>>>>>>>>>>>");
 console.log(this.state.todays);
@@ -281,7 +283,7 @@ console.log(this.state.todays);
           title={this.state.company.name}
           price={this.state.todays.owarine}
           info={['1 User']}
-          button={{ title: 'GET STARTED', icon: 'flight-takeoff' }}
+          button={{ title: 'ADD FAVORITE', icon: 'flight-takeoff' }}
         />
 
         <ButtonGroup
@@ -297,6 +299,23 @@ console.log(this.state.todays);
           xKey="x"
           yKey="y"
         />
+
+        <ButtonGroup
+          onPress={() => {
+            this.setState({ selectedTab: this.updateIndex });
+          }}
+          buttons={aveButtons}
+        />
+
+        <Table height={180} columnWidth={60} columns={columns} dataSource={this.state.dataSource} />
+
+<Button
+  raised
+  icon={{name: 'home', size: 32}}
+  buttonStyle={{backgroundColor: '#4f9deb', borderRadius: 0}}
+  textStyle={{textAlign: 'center'}}
+  title={`Comment`}
+/>
 
       </ScrollView>
     );
@@ -357,5 +376,26 @@ let options = {
     }
   }
 };
+
+var array = [
+  { date : "7/1/2017" , note : "ttttt", gender : "F" , age : 25},
+  { date : "7/1/2017" , note : "ttttt" , gender : "M", age : 27},
+  { date : "7/1/2017" , note : "ttttt" , gender : "M", age : 23},
+  { date : "7/1/2017" , note : "ttttt" , gender : "F", age : 28},
+  { date : "7/1/2017" , note : "ttttt" , gender : "F", age : 30}
+]
+
+const columns = [
+  {
+    title: 'Date',
+    dataIndex: 'date',
+    width: 80
+  },
+  {
+    title: 'Note',
+    dataIndex: 'note',
+    width: 280
+  }
+];
 
 export default UserScreen;
