@@ -2,9 +2,6 @@ import React, { Component } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import * as Colors from "../../themes/colors";
 
-//import {Bar,StockLine,SmoothLine,Scatterplot,Radar,Tree,Pie} from 'react-native-pathjs-charts'
-//import {Bar,StockLine} from 'react-native-pathjs-charts';
-//import {Bar,StockLine,SmoothLine,Scatterplot,Radar,Tree,Pie} from 'react-native-pathjs-charts'
 import {
   Button,
   SideMenu,
@@ -16,13 +13,8 @@ import {
   CheckBox,
   PricingCard
 } from "react-native-elements";
-//import {Bar,StockLine,SmoothLine,Scatterplot,Radar,Tree,Pie} from 'react-native-pathjs-charts';
 import { ScrollView } from "react-native";
-//import Chart from 'react-native-charts';
-//import Chart2 from 'react-native-pathjs-charts';
-
 import Table from "react-native-simple-table";
-
 import {
   Bar,
   StockLine,
@@ -33,7 +25,7 @@ import {
   Pie
 } from "react-native-pathjs-charts";
 
-const data = [["7/1", 1000]];
+const data = [[]];
 var api = {
   getPrices(companyCode, interval, range) {
     var url =
@@ -72,11 +64,7 @@ class UserScreen extends Component {
   }
 
   componentWillMount() {
-    //var companyCode = "AAPL";
-    //if(this.state.company.cod){
     var companyCode = this.state.company.code;
-    //}
-    //console.log("----------------------->");
     if (!this.state.company.code) {
       companyCode = "AAPL";
     }
@@ -100,20 +88,11 @@ class UserScreen extends Component {
       this.roopCnt = 0;
       for (i = 7; i < lines.length; i++) {
         var columns = lines[i].split(",");
-        console.log("a>>>>>>>");
-        console.log(columns);
-        console.log("a>>>>>>>");
+
+
         if (columns[0].startsWith("a")) {
-
-
-console.log("b1>>>>>>>");
-console.log(columns);
-console.log("b1>>>>>>>");
-
           var _unixtime = columns[0].slice(1);
           this.firstUnixTime = _unixtime;
-          //var _txt = _unixtime + "," + this.unixToDate(_unixtime) + "," + columns[1] + "," + columns[2] + "," + columns[3];
-          //var _txt = "{name:'AAAAA'}";
           var _txt = new Object();
           _txt.name = "hello";
           _txt.strdate = this.unixToDate(_unixtime);
@@ -122,16 +101,8 @@ console.log("b1>>>>>>>");
           _txt.yasune = columns[3];
           _txt.hajimene = columns[4];
           _txt.dekidaka = columns[5];
-
           this.prices.push(_txt);
-
           this.todays = _txt;
-
-          /*
-          var _pointData = [];
-          _pointData.push(_txt.strdate);
-          _pointData.push(Number(columns[1]));
-          */
           var _pointData = {
             x: i,
             y: Number(columns[1])
@@ -139,6 +110,7 @@ console.log("b1>>>>>>>");
           if (columns[1]) {
             this.points.push(_pointData);
           }
+
 
           var _heikin = 0;
           var _heikinCnt = 0;
@@ -175,8 +147,7 @@ console.log("b1>>>>>>>");
           }
 
           this.roopCnt++;
-        } else if(columns[0]){
-
+        } else if (columns[0]) {
           var _unixtime =
             Number(this.firstUnixTime) + 86400 * Number(columns[0]);
           var _txt = new Object();
@@ -192,15 +163,6 @@ console.log("b1>>>>>>>");
 
           this.todays = _txt;
 
-
-          //var _pointData = [];
-          //_pointData.push(_txt.strdate);
-          //_pointData.push(Number(columns[1]));
-          //var _pointData = {x:};
-          /*
-          var _a = this.prices[i-5].owarine;
-          var _b = 
-*/
           var _pointData = {
             x: i,
             y: Number(columns[1])
@@ -271,19 +233,14 @@ console.log("b1>>>>>>>");
   render() {
     const buttons = ["1M", "3M", "6M", "1Y"];
     const aveButtons = ["ave:none", "5D", "12D", "70D"];
-    //const buttons2 = ["1year", "3month", "1month"];
-console.log(">>>>>>>>>>>>>>>>");
-console.log(this.state.todays);
-    console.log(">>>>>>>>>>>>>>>>");
     return (
       <ScrollView>
-
         <PricingCard
-          color='#4f9deb'
+          color="#4f9deb"
           title={this.state.company.name}
           price={this.state.todays.owarine}
-          info={['1 User']}
-          button={{ title: 'ADD FAVORITE', icon: 'flight-takeoff' }}
+          info={["1 User"]}
+          button={{ title: "ADD FAVORITE", icon: "flight-takeoff" }}
         />
 
         <ButtonGroup
@@ -307,16 +264,20 @@ console.log(this.state.todays);
           buttons={aveButtons}
         />
 
-        <Table height={180} columnWidth={60} columns={columns} dataSource={this.state.dataSource} />
+        <Table
+          height={180}
+          columnWidth={60}
+          columns={columns}
+          dataSource={this.state.dataSource}
+        />
 
-<Button
-  raised
-  icon={{name: 'home', size: 32}}
-  buttonStyle={{backgroundColor: '#4f9deb', borderRadius: 0}}
-  textStyle={{textAlign: 'center'}}
-  title={`Comment`}
-/>
-
+        <Button
+          raised
+          icon={{ name: "home", size: 32 }}
+          buttonStyle={{ backgroundColor: "#4f9deb", borderRadius: 0 }}
+          textStyle={{ textAlign: "center" }}
+          title={`Comment`}
+        />
       </ScrollView>
     );
   }
@@ -378,22 +339,22 @@ let options = {
 };
 
 var array = [
-  { date : "7/1/2017" , note : "ttttt", gender : "F" , age : 25},
-  { date : "7/1/2017" , note : "ttttt" , gender : "M", age : 27},
-  { date : "7/1/2017" , note : "ttttt" , gender : "M", age : 23},
-  { date : "7/1/2017" , note : "ttttt" , gender : "F", age : 28},
-  { date : "7/1/2017" , note : "ttttt" , gender : "F", age : 30}
-]
+  { date: "7/1/2017", note: "ttttt", gender: "F", age: 25 },
+  { date: "7/1/2017", note: "ttttt", gender: "M", age: 27 },
+  { date: "7/1/2017", note: "ttttt", gender: "M", age: 23 },
+  { date: "7/1/2017", note: "ttttt", gender: "F", age: 28 },
+  { date: "7/1/2017", note: "ttttt", gender: "F", age: 30 }
+];
 
 const columns = [
   {
-    title: 'Date',
-    dataIndex: 'date',
+    title: "Date",
+    dataIndex: "date",
     width: 80
   },
   {
-    title: 'Note',
-    dataIndex: 'note',
+    title: "Note",
+    dataIndex: "note",
     width: 280
   }
 ];
