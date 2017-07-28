@@ -45,6 +45,9 @@ class UserScreen extends Component {
     super(props);
     this.state = {
       loading: false,
+      companyCode:"AAPL",
+      interval:8600,
+      period:'1M',
       todays: {},
       prices: [],
       points: data,
@@ -52,6 +55,8 @@ class UserScreen extends Component {
       company: this.props.navigation.state.params,
       dataSource: array
     };
+
+    this.updateIndex = this.updateIndex.bind(this)
   }
 
   unixToDate(unixtime) {
@@ -63,14 +68,44 @@ class UserScreen extends Component {
     return month + "/" + day;
   }
 
-  componentWillMount() {
-    var companyCode = this.state.company.code;
-    if (!this.state.company.code) {
-      companyCode = "AAPL";
+  setAverage(roopCnt,prices) {
+    var _ave = 0;
+    var _aveCnt = 0;
+    if (this.prices[roopCnt - 4]) {
+      _ave += Number(prices[roopCnt - 4].owarine);
+      _aveCnt++;
     }
+    if (this.prices[roopCnt - 3]) {
+      _ave += Number(prices[roopCnt - 3].owarine);
+      _aveCnt++;
+    }
+    if (this.prices[roopCnt - 2]) {
+      _ave += Number(prices[roopCnt - 2].owarine);
+      _aveCnt++;
+    }
+    if (this.prices[roopCnt - 1]) {
+      _ave += Number(prices[roopCnt - 1].owarine);
+      _aveCnt++;
+    }
+    if (this.prices[roopCnt]) {
+      _ave += Number(prices[roopCnt].owarine);
+      _aveCnt++;
+    }
+    var ave = Number(_ave / 5);
+    if (_aveCnt < 5) {
+      //heikin = obj.owarine;
+      ave = 1;
+    }
+    var _aveData = {
+      x: i,
+      y: Number(ave)
+    };
+    return _aveData;
+  }
 
+  refreshChart(companyCode,interval,period){
     //1M:86400sec=1日 3M:86400 * 3 = 259200 : 3日 1Y:86400 * 12
-    api.getPrices(companyCode, 259200, "3M").then(res => {
+    api.getPrices(companyCode, interval, period).then(res => {
       //改行でsplitしてlineに配列として入れる
       var lines = res.split(/\r\n|\r|\n/);
       //８行目以降は価格部になるので、配列に入れておく
@@ -79,135 +114,42 @@ class UserScreen extends Component {
       this.points = [];
       this.heikins = [];
       this.averages = [];
-      /*
-        a で始まる時刻: aを取った文字列がUNIX時刻
-        a で始まらない時刻:
-        a で始まる時刻 + INTERVAL × この列の数値
-      */
       this.firstUnixTime = 0;
       this.roopCnt = 0;
+      this.unixTime = 0;
       for (i = 7; i < lines.length; i++) {
         var columns = lines[i].split(",");
-
-
+        /*
+          a で始まる時刻: aを取った文字列がUNIX時刻
+          a で始まらない時刻:
+          a で始まる時刻 + INTERVAL × この列の数値
+        */
         if (columns[0].startsWith("a")) {
-          var _unixtime = columns[0].slice(1);
-          this.firstUnixTime = _unixtime;
-          var _txt = new Object();
-          _txt.name = "hello";
-          _txt.strdate = this.unixToDate(_unixtime);
-          _txt.owarine = columns[1];
-          _txt.takane = columns[2];
-          _txt.yasune = columns[3];
-          _txt.hajimene = columns[4];
-          _txt.dekidaka = columns[5];
-          this.prices.push(_txt);
-          this.todays = _txt;
-          var _pointData = {
-            x: i,
-            y: Number(columns[1])
-          };
-          if (columns[1]) {
-            this.points.push(_pointData);
-          }
-
-
-          var _heikin = 0;
-          var _heikinCnt = 0;
-          if (this.prices[this.roopCnt - 4]) {
-            _heikin += Number(this.prices[this.roopCnt - 4].owarine);
-            _heikinCnt++;
-          }
-          if (this.prices[this.roopCnt - 3]) {
-            _heikin += Number(this.prices[this.roopCnt - 3].owarine);
-            _heikinCnt++;
-          }
-          if (this.prices[this.roopCnt - 2]) {
-            _heikin += Number(this.prices[this.roopCnt - 2].owarine);
-            _heikinCnt++;
-          }
-          if (this.prices[this.roopCnt - 1]) {
-            _heikin += Number(this.prices[this.roopCnt - 1].owarine);
-            _heikinCnt++;
-          }
-          if (this.prices[this.roopCnt]) {
-            _heikin += Number(this.prices[this.roopCnt].owarine);
-            _heikinCnt++;
-          }
-          var heikin = Number(_heikin / 5);
-          if (_heikinCnt < 5) {
-            heikin = _txt.owarine;
-          }
-          var _heikinData = {
-            x: i,
-            y: Number(heikin)
-          };
-          if (columns[1]) {
-            this.averages.push(_heikinData);
-          }
-
-          this.roopCnt++;
-        } else if (columns[0]) {
-          var _unixtime =
+          this.unixTime = columns[0].slice(1);
+          this.firstUnixTime = this.unixTime;
+        } else {
+          this.unixTime =
             Number(this.firstUnixTime) + 86400 * Number(columns[0]);
-          var _txt = new Object();
-          _txt.name = "hello";
-          _txt.strdate = this.unixToDate(_unixtime);
-          _txt.owarine = columns[1];
-          _txt.takane = columns[2];
-          _txt.yasune = columns[3];
-          _txt.hajimene = columns[4];
-          _txt.dekidaka = columns[5];
-
-          this.prices.push(_txt);
-
-          this.todays = _txt;
-
-          var _pointData = {
+        }
+        if (columns[0]) {
+          var obj = new Object();
+          obj.name = "hello";
+          obj.strdate = this.unixToDate(this.unixTime);
+          obj.owarine = columns[1];
+          obj.takane = columns[2];
+          obj.yasune = columns[3];
+          obj.hajimene = columns[4];
+          obj.dekidaka = columns[5];
+          this.prices.push(obj);
+          this.todays = obj;
+          var _point = {
             x: i,
             y: Number(columns[1])
           };
           if (columns[1]) {
-            this.points.push(_pointData);
+            this.points.push(_point);
+            //this.averages.push(this.setAverage(this.roopCnt,this.prices,obj));
           }
-          //5 25 75 d
-          //13 26 w
-          //
-
-          var _heikin = 0;
-          var _heikinCnt = 0;
-          if (this.prices[this.roopCnt - 4]) {
-            _heikin += Number(this.prices[this.roopCnt - 4].owarine);
-            _heikinCnt++;
-          }
-          if (this.prices[this.roopCnt - 3]) {
-            _heikin += Number(this.prices[this.roopCnt - 3].owarine);
-            _heikinCnt++;
-          }
-          if (this.prices[this.roopCnt - 2]) {
-            _heikin += Number(this.prices[this.roopCnt - 2].owarine);
-            _heikinCnt++;
-          }
-          if (this.prices[this.roopCnt - 1]) {
-            _heikin += Number(this.prices[this.roopCnt - 1].owarine);
-            _heikinCnt++;
-          }
-          if (this.prices[this.roopCnt]) {
-            _heikin += Number(this.prices[this.roopCnt].owarine);
-            _heikinCnt++;
-          }
-          var heikin = Number(_heikin / 5);
-          if (_heikinCnt < 5) {
-            heikin = _txt.owarine;
-          }
-          var _heikinData = {
-            x: i,
-            y: Number(heikin)
-          };
-          if (columns[1]) {
-            this.averages.push(_heikinData);
-          }
-
           this.roopCnt++;
         }
       }
@@ -220,19 +162,44 @@ class UserScreen extends Component {
     });
   }
 
+  componentWillMount() {
+    //var companyCode = this.state.company.code;
+    if (!this.state.companyCode) {
+      this.setState({ companyCode: "AAPL" });
+    }
+    this.refreshChart(this.state.companyCode,this.state.interval, this.state.period);
+  }
+
+  componentWillUpdate(){
+    this.refreshChart(this.state.companyCode,this.state.interval, this.state.period);
+  }
+
   toggle() {}
 
   renderLoadingView() {
     return (
       <View>
-        <Text>Loading temperatures...</Text>
+        <Text>Loading...</Text>
       </View>
     );
+  }
+
+  updateIndex (selectedIndex) {    
+    if(selectedIndex == 0){
+      this.setState({ interval:86400, period:'1M'});
+    }else if(selectedIndex == 1){
+      this.setState({ interval:86400, period:'3M'});
+    }else if(selectedIndex == 2){
+      this.setState({ interval:86400*6, period:'6M'});
+    }else if(selectedIndex == 3){
+      this.setState({ interval:86400*6, period:'1Y'});
+    }
   }
 
   render() {
     const buttons = ["1M", "3M", "6M", "1Y"];
     const aveButtons = ["ave:none", "5D", "12D", "70D"];
+    const { selectedIndex } = this.state
     return (
       <ScrollView>
         <PricingCard
@@ -244,14 +211,13 @@ class UserScreen extends Component {
         />
 
         <ButtonGroup
-          onPress={() => {
-            this.setState({ selectedTab: this.updateIndex });
-          }}
+          onPress={this.updateIndex}
+          selectedIndex={selectedIndex}
           buttons={buttons}
         />
 
         <StockLine
-          data={[this.state.points, this.state.averages]}
+          data={[this.state.points]}
           options={options}
           xKey="x"
           yKey="y"
